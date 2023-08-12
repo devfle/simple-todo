@@ -34,14 +34,10 @@ function ListItemTodo({ title, text, icon, state }: ListItemTodoProps) {
       opacity.value = 0;
     });
 
-  const slideStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: translateX.value }],
-  }));
-
   return (
     <View>
       <GestureDetector gesture={panGesture}>
-        <Animated.View style={slideStyle}>
+        <Animated.View style={{ transform: [{ translateX: translateX }] }}>
           <List.Item title={title} description={text} left={(props) => <List.Icon {...props} icon={icon} />} right={(props) => <Chip {...props}>{state}</Chip>} />
         </Animated.View>
       </GestureDetector>
