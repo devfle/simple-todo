@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { FAB, List, Text, Chip, IconButton } from 'react-native-paper';
+import { FAB, Text, IconButton } from 'react-native-paper';
 import BottomForm from '../components/BottomForm';
+import ListItemTodo from '../components/ListItemTodo';
 
 interface TodoItem {
   title: string;
@@ -54,8 +55,8 @@ function Home() {
         <IconButton icon="sort" animated accessibilityLabel="sort todo list" />
       </View>
       <ScrollView style={{ flex: 1 }}>
-        {todoItems.map((todo) => (
-          <List.Item key={todo.title} title={todo.title} description={todo.text} left={(props) => <List.Icon {...props} icon={todo.icon} />} right={(props) => <Chip {...props}>{todo.state}</Chip>} />
+        {todoItems.map((todo, index) => (
+          <ListItemTodo key={index} title={todo.title} text={todo.text} icon={todo.icon} state={todo.state} />
         ))}
       </ScrollView>
       {showBottomForm && <BottomForm setShowBottomForm={setShowBottomForm} setTodoItems={setTodoItems} />}
