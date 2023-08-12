@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { FAB, Text, IconButton } from 'react-native-paper';
+import { FAB, Text, IconButton, Menu } from 'react-native-paper';
 import BottomForm from '../components/BottomForm';
 import ListItemTodo from '../components/ListItemTodo';
 
@@ -13,6 +13,7 @@ interface TodoItem {
 
 function Home() {
   const [showBottomForm, setShowBottomForm] = useState(false);
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [todoItems, setTodoItems] = useState<TodoItem[]>([
     {
       title: 'First Item',
@@ -52,7 +53,15 @@ function Home() {
     <>
       <View style={styles.header}>
         <Text variant="headlineSmall">Your Todo List</Text>
-        <IconButton icon="sort" animated accessibilityLabel="sort todo list" />
+        <Menu
+          onDismiss={() => setShowFilterMenu(false)}
+          visible={showFilterMenu}
+          anchor={<IconButton onPress={() => setShowFilterMenu(true)} icon="sort" animated accessibilityLabel="sort todo list" />}
+        >
+          <Menu.Item title="Status" />
+          <Menu.Item title="Name" />
+          <Menu.Item title="User" />
+        </Menu>
       </View>
       <ScrollView style={{ flex: 1 }}>
         {todoItems.map((todo, index) => (
