@@ -12,8 +12,6 @@ interface ListItemTodoProps {
 
 function ListItemTodo({ title, text, icon, state }: ListItemTodoProps) {
   const translateX = useSharedValue(0);
-  const deleteOpacity = useSharedValue(0);
-  const checkOpacity = useSharedValue(0);
 
   const styles = StyleSheet.create({
     deleteIcon: {
@@ -31,30 +29,30 @@ function ListItemTodo({ title, text, icon, state }: ListItemTodoProps) {
   const panGesture = Gesture.Pan()
     .onUpdate((event) => {
       translateX.value = event.translationX;
-
-      if (event.translationX < -40) deleteOpacity.value = withTiming(1);
-      if (deleteOpacity.value === 1 && event.translationX > -40) deleteOpacity.value = withTiming(0);
-
-      if (event.translationX > 40) checkOpacity.value = withTiming(1);
-      if (checkOpacity.value === 1 && event.translationX < 40) checkOpacity.value = withTiming(0);
     })
     .onEnd(() => {
       translateX.value = 0;
-      deleteOpacity.value = 0;
-      checkOpacity.value = 0;
     });
+
+  const deleteIconAnimationStyle = useAnimatedStyle(() => ({
+    opacity: translateX.value < -40 ? withTiming(1) : withTiming(0),
+  }));
+
+  const checkIconAnimationStyle = useAnimatedStyle(() => ({
+    opacity: translateX.value > 40 ? withTiming(1) : withTiming(0),
+  }));
 
   return (
     <View>
-      <Animated.View style={[styles.checkIcon, { opacity: checkOpacity }]}>
+      <Animated.View style={[styles.checkIcon, checkIconAnimationStyle]}>
         <IconButton icon="check" iconColor="#000" />
       </Animated.View>
       <GestureDetector gesture={panGesture}>
-        <Animated.View style={{ transform: [{ translateX: translateX }] }}>
+        <Animated.View style={{ zIndex: 1, transform: [{ translateX: translateX }] }}>
           <List.Item title={title} description={text} left={(props) => <List.Icon {...props} icon={icon} />} right={(props) => <Chip {...props}>{state}</Chip>} />
         </Animated.View>
       </GestureDetector>
-      <Animated.View style={[styles.deleteIcon, { opacity: deleteOpacity }]}>
+      <Animated.View style={[styles.deleteIcon, deleteIconAnimationStyle]}>
         <IconButton icon="delete" iconColor="#dd0000" />
       </Animated.View>
     </View>

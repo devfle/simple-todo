@@ -1,6 +1,7 @@
 import { Button, Card, HelperText, TextInput } from 'react-native-paper';
 import { StyleSheet } from 'react-native';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 interface BottomFormProps {
   setTodoItems: Dispatch<SetStateAction<TodoItem[]>>;
@@ -23,21 +24,37 @@ function BottomForm({ setTodoItems, setShowBottomForm }: BottomFormProps) {
   const [formData, setFormData] = useState<FormData>({});
   const [hasError, setHasError] = useState({ title: false, text: false });
 
+  const translateStyle = useSharedValue(285);
+
   const styles = StyleSheet.create({
     card: {
-      position: 'absolute',
-      bottom: 0,
-      left: 0,
       paddingVertical: 12,
-      right: 0,
-      minHeight: 260,
-      zIndex: 1,
     },
     lastInput: {
       marginTop: 8,
       marginBottom: 24,
     },
+    wrapper: {
+      left: 0,
+      right: 0,
+      bottom: 0,
+      zIndex: 1,
+      position: 'absolute',
+    },
   });
+
+  const cardTranslateStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateStyle.value }],
+  }));
+
+  useEffect(() => {
+    translateStyle.value = withTiming(0);
+
+    return () => {
+      // TODO: this does not work currently
+      translateStyle.value = withTiming(285);
+    };
+  }, []);
 
   const updateFormData = (data: FormData) => {
     setFormData((prevFormData) => ({ ...prevFormData, ...data }));
@@ -54,24 +71,26 @@ function BottomForm({ setTodoItems, setShowBottomForm }: BottomFormProps) {
   };
 
   return (
-    <Card style={styles.card}>
-      <Card.Title title="Add new Todo" />
-      <Card.Content>
-        <TextInput error={hasError.title} onChangeText={(data) => updateFormData({ title: data })} mode="outlined" label="Todo Name" placeholder="Todo Name"></TextInput>
-        <TextInput
-          error={hasError.text}
-          onChangeText={(data) => updateFormData({ text: data })}
-          style={styles.lastInput}
-          mode="outlined"
-          label="Todo Description"
-          placeholder="Todo Description"
-        ></TextInput>
-      </Card.Content>
-      <Card.Actions>
-        <Button onPress={() => setShowBottomForm(false)}>Cancel</Button>
-        <Button onPress={addTodoItem}>Create</Button>
-      </Card.Actions>
-    </Card>
+    <Animated.View style={[styles.wrapper, cardTranslateStyle]}>
+      <Card style={styles.card}>
+        <Card.Title title="Add new Todo" />
+        <Card.Content>
+          <TextInput error={hasError.title} onChangeText={(data) => updateFormData({ title: data })} mode="outlined" label="Todo Name" placeholder="Todo Name"></TextInput>
+          <TextInput
+            error={hasError.text}
+            onChangeText={(data) => updateFormData({ text: data })}
+            style={styles.lastInput}
+            mode="outlined"
+            label="Todo Description"
+            placeholder="Todo Description"
+          ></TextInput>
+        </Card.Content>
+        <Card.Actions>
+          <Button onPress={() => setShowBottomForm(false)}>Cancel</Button>
+          <Button onPress={addTodoItem}>Create</Button>
+        </Card.Actions>
+      </Card>
+    </Animated.View>
   );
 }
 

@@ -11,6 +11,8 @@ interface TodoItem {
   state: string;
 }
 
+type sortPattern = 'title' | 'state';
+
 function Home() {
   const [showBottomForm, setShowBottomForm] = useState(false);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
@@ -35,6 +37,31 @@ function Home() {
     },
   ]);
 
+  const sortFn = (firstItem: TodoItem, secondItem: TodoItem, key: sortPattern) => {
+    if (firstItem[key] > secondItem[key]) {
+      return 1;
+    } else if (firstItem[key] < secondItem[key]) {
+      return -1;
+    }
+
+    return 0;
+  };
+
+  const sortTodoItems = (pattern: sortPattern) => {
+    switch (pattern) {
+      case 'title':
+        setTodoItems((prevTodoItems) => [...prevTodoItems.sort((a, b) => sortFn(a, b, pattern))]);
+        break;
+
+      case 'state':
+        setTodoItems((prevTodoItems) => [...prevTodoItems.sort((a, b) => sortFn(a, b, pattern))]);
+        break;
+
+      default:
+        break;
+    }
+  };
+
   const styles = StyleSheet.create({
     fab: {
       position: 'absolute',
@@ -58,9 +85,8 @@ function Home() {
           visible={showFilterMenu}
           anchor={<IconButton onPress={() => setShowFilterMenu(true)} icon="sort" animated accessibilityLabel="sort todo list" />}
         >
-          <Menu.Item title="Status" />
-          <Menu.Item title="Name" />
-          <Menu.Item title="User" />
+          <Menu.Item title="Title" onPress={() => sortTodoItems('title')} />
+          <Menu.Item title="Status" onPress={() => sortTodoItems('state')} />
         </Menu>
       </View>
       <ScrollView style={{ flex: 1 }}>
