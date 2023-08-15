@@ -12,7 +12,7 @@ interface TodoItem {
   state: string;
 }
 
-type sortPattern = 'title' | 'state';
+type sortPattern = 'title' | 'state' | 'icon';
 
 function Home() {
   const [showBottomForm, setShowBottomForm] = useState(false);
@@ -74,6 +74,31 @@ function Home() {
         setTodoItems((prevTodoItems) => [...prevTodoItems.sort((a, b) => a[key].localeCompare(b[key]))]);
         break;
 
+      case 'icon':
+        // TODO: create enums
+        setTodoItems((prevTodoItems) => [
+          ...prevTodoItems.sort((a, b) => {
+            if (a[key] === 'chevron-up' && b[key] !== 'chevron-up') {
+              return -1;
+            }
+
+            if (a[key] !== 'chevron-up' && b[key] === 'chevron-up') {
+              return 1;
+            }
+
+            if (a[key] === 'equal' && b[key] === 'chevron-down') {
+              return -1;
+            }
+
+            if (a[key] === 'chevron-down' && b[key] === 'equal') {
+              return 1;
+            }
+
+            return 0;
+          }),
+        ]);
+        break;
+
       default:
         break;
     }
@@ -104,6 +129,7 @@ function Home() {
         >
           <Menu.Item title="Title (A-Z)" onPress={() => sortTodoItems('title')} />
           <Menu.Item title="Status" onPress={() => sortTodoItems('state')} />
+          <Menu.Item title="Priority" onPress={() => sortTodoItems('icon')} />
         </Menu>
       </View>
       <ScrollView style={{ flex: 1 }}>
