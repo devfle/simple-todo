@@ -64,24 +64,14 @@ function Home() {
     setShowSnackbar({ status: true, content: 'Todo item marked as done' });
   }, []);
 
-  const sortFn = (firstItem: TodoItem, secondItem: TodoItem, key: sortPattern) => {
-    if (firstItem[key] > secondItem[key]) {
-      return 1;
-    } else if (firstItem[key] < secondItem[key]) {
-      return -1;
-    }
-
-    return 0;
-  };
-
-  const sortTodoItems = (pattern: sortPattern) => {
-    switch (pattern) {
+  const sortTodoItems = (key: sortPattern) => {
+    switch (key) {
       case 'title':
-        setTodoItems((prevTodoItems) => [...prevTodoItems.sort((a, b) => sortFn(a, b, pattern))]);
+        setTodoItems((prevTodoItems) => [...prevTodoItems.sort((a, b) => a[key].localeCompare(b[key]))]);
         break;
 
       case 'state':
-        setTodoItems((prevTodoItems) => [...prevTodoItems.sort((a, b) => sortFn(a, b, pattern))]);
+        setTodoItems((prevTodoItems) => [...prevTodoItems.sort((a, b) => a[key].localeCompare(b[key]))]);
         break;
 
       default:
@@ -113,7 +103,7 @@ function Home() {
           anchor={<IconButton disabled={todoItems.length <= 1} onPress={() => setShowFilterMenu(true)} icon="sort" animated accessibilityLabel="sort todo list" />}
         >
           <Menu.Item title="Title (A-Z)" onPress={() => sortTodoItems('title')} />
-          <Menu.Item title="Status" onPress={() => sortTodoItems('title')} />
+          <Menu.Item title="Status" onPress={() => sortTodoItems('state')} />
         </Menu>
       </View>
       <ScrollView style={{ flex: 1 }}>
