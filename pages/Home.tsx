@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { FAB, Text, IconButton, Menu } from 'react-native-paper';
+import { FAB, Text, IconButton, Menu, Snackbar } from 'react-native-paper';
 import BottomForm from '../components/BottomForm';
 import ListItemTodo from '../components/ListItemTodo';
 
 interface TodoItem {
+  id: number;
   title: string;
   text: string;
   icon: string;
@@ -16,26 +17,52 @@ type sortPattern = 'title' | 'state';
 function Home() {
   const [showBottomForm, setShowBottomForm] = useState(false);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [showSnackbar, setShowSnackbar] = useState({
+    status: false,
+    content: '',
+  });
+
   const [todoItems, setTodoItems] = useState<TodoItem[]>([
     {
+      id: 1,
       title: 'First Item',
       text: 'Item description',
-      icon: 'folder',
+      icon: 'equal',
       state: 'Todo',
     },
     {
+      id: 2,
       title: 'Second Item',
       text: 'Item description',
-      icon: 'folder',
+      icon: 'chevron-up',
       state: 'Done',
     },
     {
+      id: 3,
       title: 'Third Item',
       text: 'Item description',
-      icon: 'folder',
+      icon: 'chevron-down',
       state: 'Todo',
     },
   ]);
+
+  const removeItem = useCallback((id: number) => {
+    setTodoItems((prevTodoItems) => [...prevTodoItems.filter((todoItem) => todoItem.id !== id)]);
+    setShowSnackbar({ status: true, content: 'Todo item deleted.' });
+  }, []);
+
+  const markAsDone = useCallback((id: number) => {
+    setTodoItems((prevTodoItems) => [
+      ...prevTodoItems.map((todoItem) => {
+        if (todoItem.id === id) {
+          todoItem.state = 'Done';
+        }
+
+        return todoItem;
+      }),
+    ]);
+    setShowSnackbar({ status: true, content: 'Todo item marked as done' });
+  }, []);
 
   const sortFn = (firstItem: TodoItem, secondItem: TodoItem, key: sortPattern) => {
     if (firstItem[key] > secondItem[key]) {
@@ -83,19 +110,33 @@ function Home() {
         <Menu
           onDismiss={() => setShowFilterMenu(false)}
           visible={showFilterMenu}
-          anchor={<IconButton onPress={() => setShowFilterMenu(true)} icon="sort" animated accessibilityLabel="sort todo list" />}
+          anchor={<IconButton disabled={todoItems.length <= 1} onPress={() => setShowFilterMenu(true)} icon="sort" animated accessibilityLabel="sort todo list" />}
         >
-          <Menu.Item title="Title" onPress={() => sortTodoItems('title')} />
-          <Menu.Item title="Status" onPress={() => sortTodoItems('state')} />
+          <Menu.Item title="Title (A-Z)" onPress={() => sortTodoItems('title')} />
+          <Menu.Item title="Status" onPress={() => sortTodoItems('title')} />
         </Menu>
       </View>
       <ScrollView style={{ flex: 1 }}>
-        {todoItems.map((todo, index) => (
-          <ListItemTodo key={index} title={todo.title} text={todo.text} icon={todo.icon} state={todo.state} />
+        {todoItems.map((todo) => (
+          <ListItemTodo key={todo.id} markAsDone={markAsDone} removeItem={removeItem} id={todo.id} title={todo.title} text={todo.text} icon={todo.icon} state={todo.state} />
         ))}
       </ScrollView>
       {showBottomForm && <BottomForm setShowBottomForm={setShowBottomForm} setTodoItems={setTodoItems} />}
       <FAB onPress={() => setShowBottomForm(true)} accessibilityLabel="add project" style={styles.fab} icon="plus" />
+      <Snackbar
+        style={{ left: 16, bottom: 20 }}
+        duration={5000}
+        onDismiss={() => setShowSnackbar({ status: false, content: '' })}
+        visible={showSnackbar.status}
+        action={{
+          label: 'Undo',
+          onPress: () => {
+            // Do something
+          },
+        }}
+      >
+        {showSnackbar.content}
+      </Snackbar>
     </>
   );
 }

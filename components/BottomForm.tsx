@@ -1,6 +1,6 @@
-import { Button, Card, HelperText, TextInput } from 'react-native-paper';
-import { StyleSheet } from 'react-native';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { RadioButton, Button, Card, TextInput } from 'react-native-paper';
+import { StyleSheet, View } from 'react-native';
+import { Dispatch, SetStateAction, useLayoutEffect, useState } from 'react';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 interface BottomFormProps {
@@ -14,6 +14,7 @@ interface FormData {
 }
 
 interface TodoItem {
+  id: number;
   title: string;
   text: string;
   icon: string;
@@ -23,6 +24,7 @@ interface TodoItem {
 function BottomForm({ setTodoItems, setShowBottomForm }: BottomFormProps) {
   const [formData, setFormData] = useState<FormData>({});
   const [hasError, setHasError] = useState({ title: false, text: false });
+  const [priority, setPriority] = useState('equal');
 
   const translateStyle = useSharedValue(285);
 
@@ -31,7 +33,9 @@ function BottomForm({ setTodoItems, setShowBottomForm }: BottomFormProps) {
       paddingVertical: 12,
     },
     lastInput: {
-      marginTop: 8,
+      marginVertical: 8,
+    },
+    radioWrapper: {
       marginBottom: 24,
     },
     wrapper: {
@@ -47,7 +51,7 @@ function BottomForm({ setTodoItems, setShowBottomForm }: BottomFormProps) {
     transform: [{ translateY: translateStyle.value }],
   }));
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     translateStyle.value = withTiming(0);
 
     return () => {
@@ -66,7 +70,7 @@ function BottomForm({ setTodoItems, setShowBottomForm }: BottomFormProps) {
       return;
     }
 
-    setTodoItems((prevTodoItems) => [...prevTodoItems, { state: 'Todo', icon: 'folder', ...(formData as { title: string; text: string }) }]);
+    setTodoItems((prevTodoItems) => [...prevTodoItems, { id: Date.now(), state: 'Todo', icon: priority, ...(formData as { title: string; text: string }) }]);
     setShowBottomForm(false);
   };
 
@@ -84,6 +88,13 @@ function BottomForm({ setTodoItems, setShowBottomForm }: BottomFormProps) {
             label="Todo Description"
             placeholder="Todo Description"
           ></TextInput>
+          <View style={styles.radioWrapper}>
+            <RadioButton.Group onValueChange={(value) => setPriority(value)} value={priority}>
+              <RadioButton.Item value="chevron-up" label="High" />
+              <RadioButton.Item value="equal" label="Medium" />
+              <RadioButton.Item value="chevron-down" label="Low" />
+            </RadioButton.Group>
+          </View>
         </Card.Content>
         <Card.Actions>
           <Button onPress={() => setShowBottomForm(false)}>Cancel</Button>

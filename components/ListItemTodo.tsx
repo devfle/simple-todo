@@ -1,17 +1,21 @@
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Dimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { List, Chip, IconButton } from 'react-native-paper';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 interface ListItemTodoProps {
+  id: number;
   title: string;
   text: string;
   icon: string;
   state: string;
+  removeItem: (id: number) => void;
+  markAsDone: (id: number) => void;
 }
 
-function ListItemTodo({ title, text, icon, state }: ListItemTodoProps) {
+function ListItemTodo({ title, text, icon, state, id, removeItem, markAsDone }: ListItemTodoProps) {
   const translateX = useSharedValue(0);
+  const windowWidth = Dimensions.get('window').width;
 
   const styles = StyleSheet.create({
     deleteIcon: {
@@ -30,7 +34,16 @@ function ListItemTodo({ title, text, icon, state }: ListItemTodoProps) {
     .onUpdate((event) => {
       translateX.value = event.translationX;
     })
-    .onEnd(() => {
+    .onEnd((event) => {
+      if (event.translationX < windowWidth * 0.45 * -1) {
+        runOnJS(removeItem)(id);
+        return;
+      }
+
+      if (event.translationX > windowWidth * 0.45) {
+        runOnJS(markAsDone)(id);
+      }
+
       translateX.value = 0;
     });
 
