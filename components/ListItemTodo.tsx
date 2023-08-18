@@ -1,7 +1,9 @@
+import { useContext } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { List, Chip, IconButton } from 'react-native-paper';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { NavigationContext } from '../context';
 
 interface ListItemTodoProps {
   id: number;
@@ -16,6 +18,13 @@ interface ListItemTodoProps {
 function ListItemTodo({ title, text, icon, state, id, removeItem, markAsDone }: ListItemTodoProps) {
   const translateX = useSharedValue(0);
   const windowWidth = Dimensions.get('window').width;
+
+  // TODO: fix type any
+  const { page, setPage }: any = useContext(NavigationContext);
+
+  if (!page || !setPage) {
+    return null;
+  }
 
   const styles = StyleSheet.create({
     deleteIcon: {
@@ -62,7 +71,13 @@ function ListItemTodo({ title, text, icon, state, id, removeItem, markAsDone }: 
       </Animated.View>
       <GestureDetector gesture={panGesture}>
         <Animated.View style={{ zIndex: 1, transform: [{ translateX: translateX }] }}>
-          <List.Item title={title} description={text} left={(props) => <List.Icon {...props} icon={icon} />} right={(props) => <Chip {...props}>{state}</Chip>} />
+          <List.Item
+            onPress={() => setPage({ selectedItem: id, name: 'settings' })}
+            title={title}
+            description={text}
+            left={(props) => <List.Icon {...props} icon={icon} />}
+            right={(props) => <Chip {...props}>{state}</Chip>}
+          />
         </Animated.View>
       </GestureDetector>
       <Animated.View style={[styles.deleteIcon, deleteIconAnimationStyle]}>

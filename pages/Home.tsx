@@ -1,16 +1,10 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { FAB, Text, IconButton, Menu, Snackbar } from 'react-native-paper';
 import BottomForm from '../components/BottomForm';
 import ListItemTodo from '../components/ListItemTodo';
-
-interface TodoItem {
-  id: number;
-  title: string;
-  text: string;
-  icon: string;
-  state: string;
-}
+import { TodoContext } from '../context';
+import { TodoItem } from '../types';
 
 type sortPattern = 'title' | 'state' | 'icon';
 
@@ -22,38 +16,21 @@ function Home() {
     content: '',
   });
 
-  const [todoItems, setTodoItems] = useState<TodoItem[]>([
-    {
-      id: 1,
-      title: 'First Item',
-      text: 'Item description',
-      icon: 'equal',
-      state: 'Todo',
-    },
-    {
-      id: 2,
-      title: 'Second Item',
-      text: 'Item description',
-      icon: 'chevron-up',
-      state: 'Done',
-    },
-    {
-      id: 3,
-      title: 'Third Item',
-      text: 'Item description',
-      icon: 'chevron-down',
-      state: 'Todo',
-    },
-  ]);
+  // TODO: fix any
+  const { todoItems, setTodoItems }: any = useContext(TodoContext);
+
+  if (!todoItems || !setTodoItems) {
+    return null;
+  }
 
   const removeItem = useCallback((id: number) => {
-    setTodoItems((prevTodoItems) => [...prevTodoItems.filter((todoItem) => todoItem.id !== id)]);
+    setTodoItems((prevTodoItems: TodoItem[]) => [...prevTodoItems.filter((todoItem: TodoItem) => todoItem.id !== id)]);
     setShowSnackbar({ status: true, content: 'Todo item deleted.' });
   }, []);
 
   const markAsDone = useCallback((id: number) => {
-    setTodoItems((prevTodoItems) => [
-      ...prevTodoItems.map((todoItem) => {
+    setTodoItems((prevTodoItems: TodoItem[]) => [
+      ...prevTodoItems.map((todoItem: TodoItem) => {
         if (todoItem.id === id) {
           todoItem.state = 'Done';
         }
@@ -67,17 +44,17 @@ function Home() {
   const sortTodoItems = (key: sortPattern) => {
     switch (key) {
       case 'title':
-        setTodoItems((prevTodoItems) => [...prevTodoItems.sort((a, b) => a[key].localeCompare(b[key]))]);
+        setTodoItems((prevTodoItems: TodoItem[]) => [...prevTodoItems.sort((a: TodoItem, b: TodoItem) => a[key].localeCompare(b[key]))]);
         break;
 
       case 'state':
-        setTodoItems((prevTodoItems) => [...prevTodoItems.sort((a, b) => a[key].localeCompare(b[key]))]);
+        setTodoItems((prevTodoItems: TodoItem[]) => [...prevTodoItems.sort((a: TodoItem, b: TodoItem) => a[key].localeCompare(b[key]))]);
         break;
 
       case 'icon':
         // TODO: create enums
-        setTodoItems((prevTodoItems) => [
-          ...prevTodoItems.sort((a, b) => {
+        setTodoItems((prevTodoItems: TodoItem[]) => [
+          ...prevTodoItems.sort((a: TodoItem, b: TodoItem) => {
             if (a[key] === 'chevron-up' && b[key] !== 'chevron-up') {
               return -1;
             }
@@ -133,7 +110,7 @@ function Home() {
         </Menu>
       </View>
       <ScrollView style={{ flex: 1 }}>
-        {todoItems.map((todo) => (
+        {todoItems.map((todo: TodoItem) => (
           <ListItemTodo key={todo.id} markAsDone={markAsDone} removeItem={removeItem} id={todo.id} title={todo.title} text={todo.text} icon={todo.icon} state={todo.state} />
         ))}
       </ScrollView>
@@ -147,7 +124,7 @@ function Home() {
         action={{
           label: 'Undo',
           onPress: () => {
-            // Do something
+            // TODO: add undo action function
           },
         }}
       >

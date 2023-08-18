@@ -2,6 +2,7 @@ import { RadioButton, Button, Card, TextInput } from 'react-native-paper';
 import { StyleSheet, View } from 'react-native';
 import { Dispatch, SetStateAction, useLayoutEffect, useState } from 'react';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { TodoItem } from '../types';
 
 interface BottomFormProps {
   setTodoItems: Dispatch<SetStateAction<TodoItem[]>>;
@@ -11,14 +12,6 @@ interface BottomFormProps {
 interface FormData {
   title?: string;
   text?: string;
-}
-
-interface TodoItem {
-  id: number;
-  title: string;
-  text: string;
-  icon: string;
-  state: string;
 }
 
 function BottomForm({ setTodoItems, setShowBottomForm }: BottomFormProps) {
@@ -70,7 +63,7 @@ function BottomForm({ setTodoItems, setShowBottomForm }: BottomFormProps) {
       return;
     }
 
-    setTodoItems((prevTodoItems) => [...prevTodoItems, { id: Date.now(), state: 'Todo', icon: priority, ...(formData as { title: string; text: string }) }]);
+    setTodoItems((prevTodoItems) => [...prevTodoItems, { id: Date.now(), assignedUser: 'Admin', state: 'Todo', icon: priority, ...(formData as { title: string; text: string }) }]);
     setShowBottomForm(false);
   };
 
