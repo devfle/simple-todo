@@ -1,8 +1,10 @@
 import { Button, Chip, IconButton, Text, TextInput } from 'react-native-paper';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { NavigationContext, TodoContext } from '../context';
+import { Picker } from '@react-native-picker/picker';
 import { TodoItem, NavigationData } from '../types';
+import { getUserData } from '../firebaseConfig';
 
 interface UpdateFormData {
   title?: string;
@@ -12,8 +14,22 @@ interface UpdateFormData {
 
 function SingleTodoItem() {
   const [updateTodoData, setUpdateTodoData] = useState({});
+  const [userList, setUserList] = useState([]);
+  const [selectedUser, setSelectedUser] = useState('');
   const { page, setPage }: any = useContext(NavigationContext);
   const { todoItems, setTodoItems }: any = useContext(TodoContext);
+
+  const firstUpdate = useRef(true);
+
+  useEffect(() => {
+    getUserData()
+      .then((data) => {
+        setUserList(data.map((item) => item.id));
+      })
+      .catch((err) => {
+        throw err;
+      });
+  }, []);
 
   if (!page || !setPage || !todoItems || !setTodoItems) {
     return null;
@@ -41,6 +57,16 @@ function SingleTodoItem() {
       marginBottom: 32,
     },
   });
+
+  const handleSelectChange = (newUser: string) => {
+    if (firstUpdate.current) {
+      firstUpdate.current = false;
+      return;
+    }
+
+    setSelectedUser(newUser);
+    updateTodoItem({ assignedUser: newUser });
+  };
 
   const updateTodoItem = (data: UpdateFormData) => {
     setUpdateTodoData((prevTodoData) => ({ ...prevTodoData, ...data }));
@@ -85,7 +111,11 @@ function SingleTodoItem() {
             ) : null}
           </View>
         </View>
-        <TextInput label="Search User" right={<TextInput.Icon icon="account" />} />
+        <Picker selectedValue={selectedUser} onValueChange={handleSelectChange}>
+          {userList.map((user) => (
+            <Picker.Item key={user} label={user} value={user} />
+          ))}
+        </Picker>
         <View style={styles.buttonWrapper}>
           <Button onPress={() => setPage({ ...page, name: 'home' })} mode="outlined">
             Cancel

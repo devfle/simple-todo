@@ -7,6 +7,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import SingleTodoItem from './pages/SingleTodoItem';
 import { useState } from 'react';
 import { NavigationContext, TodoContext } from './context';
+import { TodoItem } from './types';
 
 export default function App() {
   const [page, setPage] = useState({
